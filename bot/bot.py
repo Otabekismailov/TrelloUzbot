@@ -1,6 +1,7 @@
 from Keyboards.keyboards import get_inline_boards_btn, get_inline_lists_btn, get_members_btn, get_label_btn
 from message import messages
 import telebot
+import os
 from environs import Env
 from telebot import custom_filters
 
@@ -12,7 +13,7 @@ from utils.utils import write_chat_to_csv, check_chat_id_from_csv, get_trello_us
 env = Env()
 env.read_env()
 
-BOT_TOKEN = env("BOT_TOKEN")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 state_storage = telebot.storage.StateMemoryStorage()
 bot = telebot.TeleBot(BOT_TOKEN, state_storage=state_storage, parse_mode="html")
 

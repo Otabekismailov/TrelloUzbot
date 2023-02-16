@@ -1,6 +1,6 @@
 import requests
 import json
-
+import os
 from environs import Env
 
 env = Env()
@@ -8,8 +8,8 @@ env.read_env()
 
 
 class TrelloManager:
-    KEY = env("TRELLO_KEY")
-    TOKEN = env("TRELLO_TOKEN")
+    KEY = os.getenv("TRELLO_KEY")
+    TOKEN = os.getenv("TRELLO_TOKEN")
 
     def __init__(self, username):
         self.username = username
