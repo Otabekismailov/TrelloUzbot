@@ -20,6 +20,13 @@ class TrelloManager:
             "Accept": "application/json"
         }
 
+    @staticmethod
+    def get_list_id_with_name(list_data, name):
+        try:
+            return [data.get("id") for data in list_data if data.get("name") == name][0]
+        except IndexError as e:
+            print(e)
+
     def credentials(self):
         return {
             'key': self.KEY,
@@ -35,7 +42,6 @@ class TrelloManager:
             headers=self.base_headers(),
             params=self.credentials()
         )
-
         if response.status_code == 200:
             return json.loads(response.text).get("id")
 
@@ -48,7 +54,6 @@ class TrelloManager:
             headers=self.base_headers(),
             params=self.credentials()
         )
-
         if response.status_code == 200:
             return json.loads(response.text)
 
@@ -61,7 +66,7 @@ class TrelloManager:
             headers=self.base_headers(),
             params=self.credentials()
         )
-
+        # print(json.loads(response.text)
         if response.status_code == 200:
             return json.loads(response.text)
 
@@ -84,9 +89,62 @@ class TrelloManager:
         except IndexError as e:
             print(e)
 
-    @staticmethod
-    def get_list_id_with_name(list_data, name):
-        try:
-            return [data.get("id") for data in list_data if data.get("name") == name][0]
-        except IndexError as e:
-            print(e)
+    def get_board_members(self, board_id):
+        url = f"https://api.trello.com/1/boards/{board_id}/members"
+
+        response = requests.request(
+            "GET",
+            url,
+            headers=self.base_headers(),
+            params=self.credentials()
+        )
+
+        if response.status_code == 200:
+            return json.loads(response.text)
+
+    def get_label(self, board_id):
+        url = f"https://api.trello.com/1/boards/{board_id}/labels"
+
+        response = requests.request(
+            "GET",
+            url,
+            headers=self.base_headers(),
+            params=self.credentials()
+        )
+        if response.status_code == 200:
+            return json.loads(response.text)
+
+    def post_data(self, data):
+        url = f"https://api.trello.com/1/cards"
+        data.update(self.credentials())
+        response = requests.request(
+            "POST",
+            url,
+            headers=self.base_headers(),
+            params=data
+        )
+        if response.status_code == 200:
+            return json.loads(response.text)
+
+    def list_add(self, list_aAd):
+        url = "https://api.trello.com/1/lists"
+        list_aAd.update(self.credentials())
+        response = requests.request(
+            "POST",
+            url,
+            headers=self.base_headers(),
+            params=list_aAd
+        )
+        if response.status_code == 200:
+            return json.loads(response.text)
+
+    def list_delete(self, _id):
+        print(_id)
+        url = f"https://api.trello.com/1/cards/{_id}"
+        response = requests.request(
+            "DELETE",
+            url,
+            params=self.credentials()
+        )
+        if response.status_code == 200:
+            return json.loads(response.text)
