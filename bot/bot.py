@@ -1,3 +1,4 @@
+from database.trello import Database
 from Keyboards.keyboards import get_inline_boards_btn, get_inline_lists_btn, get_members_btn, get_label_btn
 from message import messages
 import telebot
@@ -56,6 +57,7 @@ def get_boards(message):
                 message.chat.id, messages.SELECT_BOARD,
                 reply_markup=get_inline_boards_btn(trello_username, "show_tasks")
             )
+            Database(trello_username).user(message.chat.id, message.from_user.first_name,message.from_user.last_name)
         else:
             bot.send_message(message.chat.id, messages.TRELLO_USERNAME_NOT_FOUND)
 
@@ -77,9 +79,7 @@ def get_member_cards(call):
     list_id = call.data.split("_")[3]
     trello_username = get_trello_username_by_chat_id("chats.csv", message.chat.id)
     trello = TrelloManager(trello_username)
-    card_data = trello.get_cards_on_a_list(list_id)
-    msg = get_member_tasks_message(card_data, trello.get_member_id())
-    print(msg)
+    msg = Database(trello).cards_trello(list_id)
     if msg:
         bot.send_message(message.chat.id, msg)
     else:
@@ -143,17 +143,21 @@ def get_task_description(message):
         data["task_desc"] = message.text
         board_id = data["task_board_id"]
     trello_username = get_trello_username_by_chat_id("chats.csv", message.chat.id)
+
     bot.send_message(
         message.chat.id,
-        messages.TASK_MEMBERS, reply_markup=get_members_btn(trello_username, board_id, "new_task_member"))
+        messages.TASK_MEMBERS,
+        reply_markup=get_members_btn(trello_username=trello_username, board_id=board_id, action="new_task_member"))
 
     bot.set_state(message.from_user.id, CreateNewTask.members, message.chat.id)
 
 
-@bot.callback_query_handler(lambda c: c.data.startswith("new_task_member_"))
+@bot.callback_query_handler(lambda c: c.data.startswith("new_task_member"))
 def get_member_id(call):
     message = call.message
+
     member_id = call.data.split("_")[3]
+
     with bot.retrieve_data(call.from_user.id, message.chat.id) as data:
         data["members_id"] = member_id
         board_id = data["task_board_id"]

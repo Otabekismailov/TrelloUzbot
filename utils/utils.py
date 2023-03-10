@@ -37,6 +37,7 @@ def get_trello_username_by_chat_id(file_path, chat_id):
 
 def get_member_tasks_message(card_data, member_id):
     msg = ""
+    print(card_data)
     for data in card_data:
         if member_id in data.get("idMembers"):
             msg += f"{data.get('idShort')} - {data.get('name')}"

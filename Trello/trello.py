@@ -13,6 +13,9 @@ class TrelloManager:
 
     def __init__(self, username):
         self.username = username
+        print(username)
+    def __str__(self):
+        return f'{self.username}'
 
     @staticmethod
     def base_headers():
@@ -138,13 +141,25 @@ class TrelloManager:
         if response.status_code == 200:
             return json.loads(response.text)
 
-    def list_delete(self, _id):
+    def borad_delete(self, _id):
         print(_id)
-        url = f"https://api.trello.com/1/cards/{_id}"
+        url = f"https://api.trello.com/1/boards/{_id}"
         response = requests.request(
             "DELETE",
             url,
             params=self.credentials()
+        )
+        if response.status_code == 200:
+            return json.loads(response.text)
+
+    def board_add(self, doska):
+        url = "https://api.trello.com/1/boards/"
+        doska.update(self.credentials())
+        response = requests.request(
+            "POST",
+            url,
+            headers=self.base_headers(),
+            params=doska
         )
         if response.status_code == 200:
             return json.loads(response.text)
