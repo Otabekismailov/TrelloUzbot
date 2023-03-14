@@ -4,30 +4,33 @@
 
 <img src="picture/img.png">,
 
-# CARDS
+# Boards_users
 
 <img src="picture/img_1.png">,
 
-# CARDS_LABEL
+# Boards_membebrs
 
 <img src="picture/img_2.png">,
 
-# LABELS
+# CARDS
 
 <img src="picture/img_3.png">,
 
-# LISTS
+# CARDS_USER
 
 <img src="picture/img_4.png">,
 
-# MEMBERS
+# LABEL
 
 <img src="picture/img_5.png">,
 
-# MEMBERS_ONE
+# LISTS
 
 <img src="picture/img_6.png">,
 
-# TELEGRAM USER
+# MEMBERS
 
-<img src="picture/img_7.png">
+<img src="picture/img_7.png">,
+
+# USERS TELEGRAM
+<img src="picture/img_8.png">,

@@ -8,6 +8,7 @@ from database.trello import connection
 from Snc.sync import sync_boards
 from message.messages import SELECT_LIST
 from query import quary
+from query.quary import SYNC_DOSTUP
 from states.states import CreateNewTask, AddList
 from Trello.trello import TrelloManager
 from utils.utils import check_chat_id_from_csv, get_trello_username_by_chat_id, get_user_tasks_message
@@ -171,7 +172,6 @@ def get_list_id_for_new_task(call):
         data["task_list_id"] = list_id
 
 
-
 @bot.message_handler(state=CreateNewTask.name)
 def get_task_name(message):
     bot.send_message(message.chat.id, messages.TASK_DESC)
@@ -185,12 +185,10 @@ def get_task_description(message):
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         data["task_desc"] = message.text
         board_id = data["task_board_id"]
-
-
     bot.send_message(
         message.chat.id,
         messages.TASK_MEMBERS,
-        reply_markup=get_members_btn(trello_username,board_id, "new_task_member"))
+        reply_markup=get_members_btn(board_id, "new_task_member"))
 
     bot.set_state(message.from_user.id, CreateNewTask.members, message.chat.id)
 
@@ -198,19 +196,17 @@ def get_task_description(message):
 @bot.callback_query_handler(lambda c: c.data.startswith("new_task_member"))
 def get_member_id(call):
     message = call.message
-
     member_id = call.data.split("_")[3]
-
     with bot.retrieve_data(call.from_user.id, message.chat.id) as data:
         data["members_id"] = member_id
+
         board_id = data["task_board_id"]
-    trello_username = get_trello_username_by_chat_id("chats.csv", message.chat.id)
     bot.send_message(message.chat.id, messages.TASK_LABELS,
-                     reply_markup=get_label_btn(trello_username, board_id, "new_task_label"))
+                     reply_markup=get_label_btn(board_id, "new_task_label"))
     bot.set_state(call.from_user.id, CreateNewTask.members, message.chat.id)
 
 
-@bot.callback_query_handler(lambda c: c.data.startswith("new_task_label_"))
+@bot.callback_query_handler(lambda c: c.data.startswith("new_task_label"))
 def get_label_id(call):
     message = call.message
     label_id = call.data.split("_")[3]
@@ -218,6 +214,7 @@ def get_label_id(call):
     bot.set_state(call.from_user.id, CreateNewTask.date, message.chat.id)
     with bot.retrieve_data(call.from_user.id, message.chat.id) as data:
         data["label_color"] = label_id
+
     bot.set_state(call.from_user.id, CreateNewTask.date, message.chat.id)
     bot.register_next_step_handler(message, get_data)
 
@@ -291,20 +288,37 @@ def delete_card(message):
 
 
 bot.add_custom_filter(custom_filters.StateFilter(bot))
-my_commands = [
-    telebot.types.BotCommand("/start", "Boshlash"),
-    telebot.types.BotCommand("/register", "Ro'yxatdan o'tish"),
-    telebot.types.BotCommand("/new", "Yangi task yaratish"),
-    telebot.types.BotCommand("/boards", "Doskalarni ko'rish"),
-    telebot.types.BotCommand("/sync", "Trello sinxronizatsiya"),
-    telebot.types.BotCommand("/column", "List Yaratish"),
-    telebot.types.BotCommand("/delete", "O'chirish"),
-    telebot.types.BotCommand("/cancel", "Bekor qilish"),
-    telebot.types.BotCommand("/help", "Yordam")
 
-]
+
+def my_commadns():
+    with connection.cursor(cursor_factory=RealDictCursor) as chat:
+        chat.execute(SYNC_DOSTUP)
+        message = chat.fetchall()
+        for i in message:
+            print(type(i.get('chat_id')))
+            if i.get('chat_id') == 745067900:
+                return [telebot.types.BotCommand("/start", "Boshlash"),
+                        telebot.types.BotCommand("/register", "Ro'yxatdan o'tish"),
+                        telebot.types.BotCommand("/new", "Yangi task yaratish"),
+                        telebot.types.BotCommand("/boards", "Doskalarni ko'rish"),
+                        telebot.types.BotCommand("/sync ", "Trello sinxronizatsiya♻️ "),
+                        telebot.types.BotCommand("/column", "List Yaratish"),
+                        telebot.types.BotCommand("/delete", "O'chirish"),
+                        telebot.types.BotCommand("/cancel", "Bekor qilish"),
+                        telebot.types.BotCommand("/help", "Yordam")]
+            else:
+                return [
+                    telebot.types.BotCommand("/start", "Boshlash"),
+                    telebot.types.BotCommand("/register", "Ro'yxatdan o'tish"),
+                    telebot.types.BotCommand("/new", "Yangi task yaratish"),
+                    telebot.types.BotCommand("/boards", "Doskalarni ko'rish"),
+                    telebot.types.BotCommand("/column", "List Yaratish"),
+                    telebot.types.BotCommand("/delete", "O'chirish"),
+                    telebot.types.BotCommand("/cancel", "Bekor qilish"),
+                    telebot.types.BotCommand("/help", "Yordam")]
+
 
 if __name__ == "__main__":
     print("Started...")
-    bot.set_my_commands(my_commands)
+    bot.set_my_commands(my_commadns())
     bot.infinity_polling()
