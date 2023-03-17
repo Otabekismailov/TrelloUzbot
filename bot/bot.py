@@ -288,37 +288,36 @@ def delete_card(message):
 
 
 bot.add_custom_filter(custom_filters.StateFilter(bot))
-
-
-def my_commadns():
-    with connection.cursor(cursor_factory=RealDictCursor) as chat:
-        chat.execute(SYNC_DOSTUP)
-        message = chat.fetchall()
-        for i in message:
-            print(type(i.get('chat_id')))
-            if i.get('chat_id') == 745067900:
-                return [telebot.types.BotCommand("/start", "Boshlash"),
-                        telebot.types.BotCommand("/register", "Ro'yxatdan o'tish"),
-                        telebot.types.BotCommand("/new", "Yangi task yaratish"),
-                        telebot.types.BotCommand("/boards", "Doskalarni ko'rish"),
-                        telebot.types.BotCommand("/sync ", "Trello sinxronizatsiya♻️ "),
-                        telebot.types.BotCommand("/column", "List Yaratish"),
-                        telebot.types.BotCommand("/delete", "O'chirish"),
-                        telebot.types.BotCommand("/cancel", "Bekor qilish"),
-                        telebot.types.BotCommand("/help", "Yordam")]
-            else:
-                return [
-                    telebot.types.BotCommand("/start", "Boshlash"),
-                    telebot.types.BotCommand("/register", "Ro'yxatdan o'tish"),
-                    telebot.types.BotCommand("/new", "Yangi task yaratish"),
-                    telebot.types.BotCommand("/boards", "Doskalarni ko'rish"),
-                    telebot.types.BotCommand("/column", "List Yaratish"),
-                    telebot.types.BotCommand("/delete", "O'chirish"),
-                    telebot.types.BotCommand("/cancel", "Bekor qilish"),
-                    telebot.types.BotCommand("/help", "Yordam")]
+with connection.cursor(cursor_factory=RealDictCursor) as cur:
+    cur.execute(SYNC_DOSTUP)
+    message = cur.fetchall()
+    for i in message:
+        if i.get('chat_id') == 745067900:
+            print(1)
+            my_commadns = [telebot.types.BotCommand("/start", "Boshlash"),
+                           telebot.types.BotCommand("/register", "Ro'yxatdan o'tish"),
+                           telebot.types.BotCommand("/new", "Yangi task yaratish"),
+                           telebot.types.BotCommand("/boards", "Doskalarni ko'rish"),
+                           telebot.types.BotCommand("/sync ", "Trello sinxronizatsiya♻️ "),
+                           telebot.types.BotCommand("/column", "List Yaratish"),
+                           telebot.types.BotCommand("/delete", "O'chirish"),
+                           telebot.types.BotCommand("/cancel", "Bekor qilish"),
+                           telebot.types.BotCommand("/help", "Yordam")]
+            break
+        else:
+            print(2)
+            my_commadns = [
+                telebot.types.BotCommand("/start", "Boshlash"),
+                telebot.types.BotCommand("/register", "Ro'yxatdan o'tish"),
+                telebot.types.BotCommand("/new", "Yangi task yaratish"),
+                telebot.types.BotCommand("/boards", "Doskalarni ko'rish"),
+                telebot.types.BotCommand("/column", "List Yaratish"),
+                telebot.types.BotCommand("/delete", "O'chirish"),
+                telebot.types.BotCommand("/cancel", "Bekor qilish"),
+                telebot.types.BotCommand("/help", "Yordam")]
 
 
 if __name__ == "__main__":
     print("Started...")
-    bot.set_my_commands(my_commadns())
+    bot.set_my_commands(my_commadns)
     bot.infinity_polling()
